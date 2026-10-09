@@ -1,479 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Killactivity</title>
-    <style>
-        :root {
-            --bg-color: #0b0d11;
-            --card-bg: #14171f;
-            --card-hover: #1b1f2b;
-            --accent-blue: #3b82f6;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
-            --border-color: #242936;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            user-select: none;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            padding: 24px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .header-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        h1 {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .version-tag {
-            font-size: 11px;
-            background: rgba(59, 130, 246, 0.15);
-            color: var(--accent-blue);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-family: monospace;
-        }
-
-        /* Dynamic Root Status Badge in Header */
-        .root-status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background-color: #1a1e29;
-            border: 1px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--accent-red);
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-            transition: all 0.3s ease;
-        }
-
-        .root-status-badge.granted {
-            border-color: rgba(16, 185, 129, 0.4);
-            background-color: rgba(16, 185, 129, 0.1);
-        }
-
-        .root-status-badge.granted .status-dot {
-            background-color: var(--accent-green);
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
-        }
-
-        .root-status-text {
-            color: var(--accent-red);
-        }
-
-        .root-status-badge.granted .root-status-text {
-            color: var(--accent-green);
-        }
-
-        /* Top Navigation Tabs */
-        .tab-bar {
-            display: flex;
-            gap: 8px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-        }
-
-        .tab-btn {
-            background-color: transparent;
-            color: var(--text-secondary);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .tab-btn:hover {
-            color: var(--text-primary);
-            background-color: #171a24;
-        }
-
-        .tab-btn.active {
-            color: #fff;
-            background-color: var(--accent-blue);
-        }
-
-        /* Tab Content Panels */
-        .tab-content {
-            display: none;
-            flex-direction: column;
-            gap: 16px;
-            flex-grow: 1;
-        }
-
-        .tab-content.active {
-            display: flex;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .card-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .card-desc {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            background-color: #1e222e;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 9px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn:hover {
-            background-color: #272c3b;
-            border-color: #3b4259;
-        }
-
-        .btn-primary {
-            background-color: var(--accent-blue);
-            color: #fff;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #2563eb;
-        }
-
-        .btn-danger {
-            background-color: #dc2626;
-            color: #fff;
-            border: none;
-        }
-
-        .btn-danger:hover {
-            background-color: #b91c1c;
-        }
-
-        /* Console Window */
-        .console-card {
-            background-color: #0e1017;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 14px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 420px;
-        }
-
-        .console-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #1a1e2b;
-        }
-
-        .console-title {
-            font-size: 11px;
-            font-family: monospace;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .console-output {
-            background: #07080b;
-            border: 1px solid #161922;
-            border-radius: 8px;
-            padding: 12px;
-            height: 360px;
-            font-family: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
-            font-size: 11.5px;
-            color: #a3e635;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .log-entry {
-            line-height: 1.35;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        .log-sys { color: #60a5fa; }
-        .log-kernel { color: #c084fc; }
-        .log-mem { color: #facc15; }
-        .log-su { color: #4ade80; }
-        .log-alert { color: #ef4444; font-weight: bold; }
-
-    </style>
+<meta charset="UTF-8">
+<title>YOU ARE AN IDIOT</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: #000; overflow: hidden; cursor: none; user-select: none;
+  }
+  #stage {
+    position: fixed; inset: 0; background: #000; overflow: hidden;
+  }
+  .idiot {
+    position: absolute;
+    font-family: "Comic Sans MS", "Arial Black", Impact, sans-serif;
+    font-weight: 900;
+    color: #ff00ff;
+    text-shadow: 3px 3px 0 #000, -3px -3px 0 #0ff, 0 0 12px #f0f;
+    white-space: nowrap;
+    pointer-events: none;
+    will-change: transform, color, left, top;
+  }
+  #smiley {
+    position: fixed; left: 50%; top: 50%;
+    width: 260px; height: 260px;
+    transform: translate(-50%, -50%);
+    z-index: 999999; pointer-events: none;
+    animation: spin 0.35s linear infinite;
+    filter: drop-shadow(0 0 30px #ff00ff) drop-shadow(0 0 12px #0ff);
+  }
+  @keyframes spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+  #smiley2 {
+    position: fixed; left: 50%; top: 50%;
+    width: 400px; height: 400px;
+    transform: translate(-50%, -50%);
+    z-index: 999998; pointer-events: none;
+    animation: spin 0.2s linear infinite reverse;
+    opacity: 0.35;
+  }
+  #hint {
+    position: fixed; bottom: 8px; left: 8px;
+    color: #ff0000; font-family: monospace; font-size: 14px;
+    z-index: 1000000; pointer-events: none;
+    animation: blink 0.3s steps(2) infinite;
+    text-shadow: 0 0 8px #f00;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  #flash {
+    position: fixed; inset: 0; background: #fff;
+    z-index: 999997; pointer-events: none;
+    mix-blend-mode: difference; opacity: 0.08;
+    animation: flash 0.1s steps(2) infinite;
+  }
+  @keyframes flash { 50% { opacity: 0.22; } }
+  #cursorTrap {
+    position: fixed; inset: 0; z-index: 999996; cursor: none;
+  }
+</style>
 </head>
 <body>
+<div id="stage"></div>
+<div id="cursorTrap"></div>
+<div id="flash"></div>
 
-    <header>
-        <div class="header-title">
-            <h1>Killactivity</h1>
-            <span class="version-tag">v3.8.2-MagiskCore</span>
-        </div>
-        <!-- Status Window next to title -->
-        <div class="root-status-badge" id="rootBadge">
-            <span class="status-dot"></span>
-            <span>Root Access: <strong class="root-status-text" id="rootStatusText">Denied (uid=1000)</strong></span>
-        </div>
-    </header>
+<svg id="smiley2" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#0ff" stroke-width="8"/>
+  <circle cx="70" cy="80" r="12" fill="#0ff"/>
+  <circle cx="130" cy="80" r="12" fill="#0ff"/>
+  <path d="M 55 125 Q 100 175 145 125" stroke="#0ff" stroke-width="8" fill="none" stroke-linecap="round"/>
+</svg>
 
-    <!-- Navigation Tabs -->
-    <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('dashboardTab', this)">Dashboard</button>
-        <button class="tab-btn" onclick="switchTab('fullRootTab', this)">Full Root</button>
-        <button class="tab-btn" onclick="switchTab('tweaksTab', this)">AIO Tweaks</button>
-        <button class="tab-btn" onclick="switchTab('settingsTab', this)">Settings</button>
-    </div>
+<svg id="smiley" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="90" fill="#ffdd00" stroke="#000" stroke-width="6"/>
+  <circle cx="70" cy="80" r="12" fill="#000"/>
+  <circle cx="130" cy="80" r="12" fill="#000"/>
+  <path d="M 55 125 Q 100 175 145 125" stroke="#000" stroke-width="8" fill="none" stroke-linecap="round"/>
+</svg>
 
-    <!-- TAB 1: Dashboard -->
-    <div id="dashboardTab" class="tab-content active">
-        <div class="grid-container">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>Magisk Daemon Socket</span>
-                    </div>
-                </div>
-                <div class="card-desc">
-                    Target device: Meta Quest 2 / Android 12L (API level 32). Daemon loop active on localhost:5555.
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="switchTab('fullRootTab', document.querySelectorAll('.tab-btn')[1])">Open Full Root Terminal</button>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>Hardware Registers</span>
-                    </div>
-                </div>
-                <div class="card-desc">
-                    Qualcomm Snapdragon XR2 (sm8250). Adreno 650 GPU context active. Memory pages locked.
-                </div>
-            </div>
-        </div>
-    </div>
+<div id="hint">▶ CLICK TO CONTINUE ◀</div>
 
-    <!-- TAB 2: Full Root -->
-    <div id="fullRootTab" class="tab-content">
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">
-                    <span>Kernel Escalation & Privilege Manager</span>
-                </div>
-            </div>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="startRealisticRootStream()">Gain Full Access</button>
-                <button class="btn" onclick="dumpKernelLogs()">Dump dmesg</button>
-                <button class="btn" onclick="patchSELinux()">Setenforce Permissive</button>
-                <button class="btn btn-danger" onclick="clearLogs()">Clear Console</button>
-            </div>
-        </div>
+<script>
+(function () {
+  var stage = document.getElementById("stage");
+  var hint  = document.getElementById("hint");
 
-        <div class="console-card">
-            <div class="console-header">
-                <span class="console-title">Live ADB / Shell TTY (/dev/pts/1)</span>
-            </div>
-            <div class="console-output" id="consoleLog">
-                <div class="log-entry log-sys">[SYS] Magisk daemon attached to process ID 1842.</div>
-                <div class="log-entry log-sys">[SYS] Context: u:r:untrusted_app:s0:c512,c768 (unprivileged)</div>
-                <div class="log-entry log-mem">[WARN] Pending escalation. Click "Gain Full Access" to start payload pipeline.</div>
-            </div>
-        </div>
-    </div>
+  var PHRASES = [
+    "YOU ARE AN IDIOT", "YOU ARE AN IDIOT!", "HAHAHAHAHAHA",
+    "LOLOLOLOLOL", "YOU ARE AN IDIOT!!!", "SMILE :)",
+    "GET REKT", "YOU ARE AN IDIOT", "NICE TRY", "TOO SLOW",
+    "YOU ARE AN IDIOT", "SYSTEM COMPROMISED", "UR MOM",
+    "YOU ARE AN IDIOT", "gg ez", "XDDDDDDDD"
+  ];
+  var COLORS = ["#ff00ff","#00ffff","#ffff00","#ff0000","#00ff00","#ff8800","#ffffff","#ff0088","#00ffcc"];
 
-    <!-- TAB 3: Tweaks -->
-    <div id="tweaksTab" class="tab-content">
-        <div class="card">
-            <div class="card-title">Kernel & Performance Settings</div>
-            <div class="card-desc">Direct sysfs node modifications for CPU/GPU frequency tables and memory limits.</div>
-        </div>
-    </div>
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
 
-    <!-- TAB 4: Settings -->
-    <div id="settingsTab" class="tab-content">
-        <div class="card">
-            <div class="card-title">Killactivity Engine Config</div>
-            <div class="card-desc">Hook injection layer: Zygisk / Riru loader build 8940.</div>
-        </div>
-    </div>
+  // ============================================================
+  // AUDIO — maximum loudness a webpage can produce.
+  // ============================================================
+  var audioCtx = null;
+  var soundOn  = false;
 
-    <script>
-        function switchTab(tabId, btn) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
-        }
+  function startSound() {
+    if (soundOn) return;
+    soundOn = true;
+    hint.style.display = "none";
 
-        function appendLog(text, type = 'sys') {
-            const consoleOutput = document.getElementById('consoleLog');
-            const entry = document.createElement('div');
-            entry.className = `log-entry log-${type}`;
-            const time = new Date().toISOString().split('T')[1].slice(0, 12);
-            entry.innerText = `[${time}] ${text}`;
-            consoleOutput.appendChild(entry);
-            consoleOutput.scrollTop = consoleOutput.scrollHeight;
-        }
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) { return; }
+    if (audioCtx.state === "suspended") audioCtx.resume();
 
-        function clearLogs() {
-            document.getElementById('consoleLog').innerHTML = '';
-            appendLog('TTY buffer reset.', 'sys');
-        }
+    // --- Master chain: compressor -> gain(1.0) -> destination ---
+    // Compressor keeps everything pinned at ceiling without digital clipping.
+    var comp = audioCtx.createDynamicsCompressor();
+    comp.threshold.value = -10;
+    comp.knee.value      = 0;
+    comp.ratio.value     = 20;
+    comp.attack.value    = 0.002;
+    comp.release.value   = 0.05;
 
-        function patchSELinux() {
-            appendLog('Executing selinux_setenforce(0)...', 'kernel');
-            setTimeout(() => appendLog('SELinux context toggled: Permissive (0)', 'su'), 250);
-        }
+    var master = audioCtx.createGain();
+    master.gain.value = 1.0;   // MAX
+    comp.connect(master);
+    master.connect(audioCtx.destination);
 
-        function dumpKernelLogs() {
-            appendLog('dmesg | grep -i magisk', 'kernel');
-            setTimeout(() => appendLog('magiskd: [su_daemon] connection received from uid 1000', 'sys'), 200);
-        }
+    // --- Oscillator bank: many shrill tones stacked ---
+    // Each one slightly detuned -> beating + density = perceived louder.
+    var freqs = [2800, 3200, 3600, 4100, 4600, 5200, 5800];
+    var types = ["square","sawtooth","square","sawtooth","square","sawtooth","square"];
+    var oscs  = [];
 
-        // Realistic Android Kernel / Magisk / Memory Escalation Stream
-        function startRealisticRootStream() {
-            clearLogs();
-            appendLog('Initializing Killactivity privileged execution pipeline...', 'sys');
+    freqs.forEach(function (f, i) {
+      var o = audioCtx.createOscillator();
+      o.type = types[i];
+      o.frequency.value = f + (Math.random()*40 - 20);
+      var g = audioCtx.createGain();
+      g.gain.value = 0.15;         // each of 7 stacked; compressor handles the sum
+      o.connect(g);
+      g.connect(comp);
+      o.start();
+      oscs.push(o);
+    });
 
-            const sysfsNodes = [
-                '/sys/kernel/debug/tracing/trace_marker',
-                '/sys/fs/selinux/enforce',
-                '/proc/self/attr/current',
-                '/dev/block/bootdevice/by-name/boot',
-                '/system/bin/app_process64',
-                '/data/adb/magisk/magisk64'
-            ];
+    // --- LFO warbling ALL oscillators for that classic virus wobble ---
+    var lfo = audioCtx.createOscillator();
+    lfo.type = "sine";
+    lfo.frequency.value = 7;
+    var lfoGain = audioCtx.createGain();
+    lfoGain.gain.value = 500;
+    lfo.connect(lfoGain);
+    oscs.forEach(function (o) { lfoGain.connect(o.frequency); });
+    lfo.start();
 
-            const memOps = [
-                'mmap(0x7f8a920000, 4096, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE)',
-                'ptrace(PTRACE_ATTACH, target_pid, NULL, NULL)',
-                'vsnprintf(buf, 256, "/proc/%d/mem", target_pid)',
-                'sys_call_table override @ 0xffffffc008201a40',
-                'setresuid(0, 0, 0) -> checking credentials structure',
-                'modprobe -a zram_size_mb override'
-            ];
+    // --- Second LFO: amplitude throb, on top of pitch wobble ---
+    var trem = audioCtx.createOscillator();
+    trem.type = "square";
+    trem.frequency.value = 12;
+    var tremGain = audioCtx.createGain();
+    tremGain.gain.value = 0.4;
+    var tremDepth = audioCtx.createGain();
+    tremDepth.gain.value = 0.6;
+    trem.connect(tremGain);
+    tremGain.connect(tremDepth.gain);
+    tremDepth.connect(master.gain);
+    trem.start();
 
-            let step = 0;
-            const maxSteps = 125;
+    // --- Noise layer: white noise adds a hiss/scream component ---
+    var bufSize = audioCtx.sampleRate * 2;
+    var buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+    var noise = audioCtx.createBufferSource();
+    noise.buffer = buf;
+    noise.loop = true;
+    var nf = audioCtx.createBiquadFilter();
+    nf.type = "bandpass";
+    nf.frequency.value = 4000;
+    nf.Q.value = 0.6;
+    var ng = audioCtx.createGain();
+    ng.gain.value = 0.12;
+    noise.connect(nf); nf.connect(ng); ng.connect(comp);
+    noise.start();
 
-            const interval = setInterval(() => {
-                step++;
-                const hexAddr = '0x' + Math.floor(Math.random()*0xFFFFFFFF).toString(16).padStart(8, '0');
-                const randomNode = sysfsNodes[Math.floor(Math.random() * sysfsNodes.length)];
-                const randomMem = memOps[Math.floor(Math.random() * memOps.length)];
-                
-                if (step % 18 === 0) {
-                    appendLog(`[KERNEL] [${hexAddr}] SELinux AVC check bypassed for domain u:r:su:s0`, 'kernel');
-                } else if (step % 11 === 0) {
-                    appendLog(`[SYSCALL] ${randomMem}`, 'mem');
-                } else if (step % 7 === 0) {
-                    appendLog(`[FS] File descriptor opened: ${randomNode} (flags=0x80002)`, 'sys');
-                } else {
-                    appendLog(`[MAGISKD] Injection segment ${step}/${maxSteps} allocated -> base ${hexAddr} [OK]`, 'su');
-                }
+    // --- Random error "dings" layered on top forever ---
+    setInterval(function () {
+      var t = audioCtx.currentTime;
+      var o1 = audioCtx.createOscillator();
+      var o2 = audioCtx.createOscillator();
+      var g  = audioCtx.createGain();
+      o1.type = "square"; o2.type = "square";
+      o1.frequency.value = 1200 + Math.random()*600;
+      o2.frequency.value = 1500 + Math.random()*600;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.25, t + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+      o1.connect(g); o2.connect(g); g.connect(comp);
+      o1.start(t); o2.start(t);
+      o1.stop(t + 0.18); o2.stop(t + 0.18);
+    }, 260);
+  }
 
-                if (step >= maxSteps) {
-                    clearInterval(interval);
-                    
-                    // Final Access Log & State Switch
-                    appendLog('===============================================================', 'mem');
-                    appendLog('[KERNEL] setresuid(0, 0, 0) executed successfully.', 'su');
-                    appendLog('[PRIV] UID updated: uid=0(root) gid=0(root) groups=0(root)', 'su');
-                    appendLog('[SUCCESS] "Killactivity" was granted access.', 'su');
-                    appendLog('[STATUS] UNRESTRICTED SYSTEM ACCESS ENGAGED', 'su');
-                    appendLog('===============================================================', 'mem');
+  ["mousedown","keydown","touchstart","pointerdown"].forEach(function (ev) {
+    window.addEventListener(ev, startSound, { once: true });
+  });
 
-                    // Update Top Header UI Badge
-                    const rootBadge = document.getElementById('rootBadge');
-                    const rootStatusText = document.getElementById('rootStatusText');
-                    rootBadge.classList.add('granted');
-                    rootStatusText.innerText = 'Granted (uid=0)';
-                }
-            }, 20);
-        }
-    </script>
+  // ============================================================
+  // TEXT FLOOD — saturate the DOM
+  // ============================================================
+  function spawnText() {
+    var el = document.createElement("div");
+    el.className = "idiot";
+    el.style.fontSize = Math.floor(rand(20, 90)) + "px";
+    el.style.color    = pick(COLORS);
+    el.textContent    = pick(PHRASES);
+    el.style.left     = Math.floor(rand(-60, window.innerWidth  - 40)) + "px";
+    el.style.top      = Math.floor(rand(-30, window.innerHeight - 30)) + "px";
+    el.style.transform = "rotate(" + Math.floor(rand(-30,30)) + "deg) scale(" + rand(0.7,1.4).toFixed(2) + ")";
+    stage.appendChild(el);
+    while (stage.children.length > 500) stage.removeChild(stage.firstChild);
+  }
+
+  function loop() {
+    for (var i = 0; i < 8; i++) spawnText();
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  setInterval(function () { for (var i = 0; i < 30; i++) spawnText(); }, 16);
+
+  // BG strobe
+  var hue = 0;
+  setInterval(function () {
+    hue = (hue + 53) % 360;
+    stage.style.background = "hsl(" + hue + ", 100%, 6%)";
+  }, 60);
+
+  // Emoji / character storm
+  var STORM = ["😈","💀","☠️","👹","🤡","💩","🖕","⚡","🔥","❗","⁉️","🚨","⛔","☣️","☢️","🤖","👾","💣"];
+  setInterval(function () {
+    for (var i = 0; i < 5; i++) {
+      var e = document.createElement("div");
+      e.className = "idiot";
+      e.style.fontSize = Math.floor(rand(24, 80)) + "px";
+      e.style.left = Math.floor(rand(0, window.innerWidth)) + "px";
+      e.style.top  = Math.floor(rand(0, window.innerHeight)) + "px";
+      e.textContent = pick(STORM);
+      e.style.transform = "rotate(" + Math.floor(rand(-45,45)) + "deg)";
+      stage.appendChild(e);
+      while (stage.children.length > 500) stage.removeChild(stage.firstChild);
+    }
+  }, 60);
+
+  // Window title spam (visible in tab)
+  var TITLES = ["YOU ARE AN IDIOT","☠ ERROR ☠","HAHAHAHA","SYSTEM FAILURE","XDDDDD","VIRUS.EXE"];
+  setInterval(function () {
+    document.title = pick(TITLES) + " ".repeat(Math.floor(Math.random()*20));
+  }, 80);
+
+  // Trap: right-click and selection disabled
+  document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  document.addEventListener("selectstart", function (e) { e.preventDefault(); });
+  document.addEventListener("dragstart",   function (e) { e.preventDefault(); });
+})();
+</script>
 </body>
 </html>
